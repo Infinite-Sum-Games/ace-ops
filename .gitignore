@@ -1,0 +1,5 @@
+# Removing unnecessary dependencies
+node_modules/
+
+# Ignoring environment variables
+.env
