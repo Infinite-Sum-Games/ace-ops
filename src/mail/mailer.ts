@@ -1,23 +1,26 @@
 import nodemailer from "nodemailer";
 import RegistrationOTPTemplate from "./templates/user_registration";
-import dotenv from "dotenv";
+import { config } from "dotenv";
 
-dotenv.config()
+config({ path: ".env" });
 
 console.log(process.env.MAIL_HOST);
 
+const mailHost = process.env.MAIL_HOST as string;
+const mailUser = process.env.EMAIL_ID as string;
+const mailPass = process.env.EMAIL_APP_KEY as string;
 // To be generalized later
 const subjects = {
-    registration: "[Amrita Centre for Entrepreneurship] Registration: OTP",
-    passReset: "[Amrita Centre for Entrepreneurship] Password Reset: OTP",
-    accountDelete: "[Amrita Centre for Entrepreneurship] Confirm Account Delete: OTP",
+    registration: "Amrita Centre for Entrepreneurship - Registration: OTP",
+    passReset: "Amrita Centre for Entrepreneurship - Password Reset: OTP",
+    accountDelete: "Amrita Centre for Entrepreneurship - Account Delete: OTP",
 }
 
 const transporter = nodemailer.createTransport({
-    service: process.env.MAIL_HOST,
+    service: mailHost,
     auth: {
-        user: process.env.EMAIL_ID,
-        pass: process.env.EMAIL_APP_KEY,
+        user: mailUser,
+        pass: mailPass,
     }
 });
 
@@ -25,10 +28,10 @@ const sendRegistrationOTP = (username: string, otp: string, email: string) => {
     const mailOptions = {
         from: {
             name: "ACE",
-            address: process.env.EMAIL_ADDRESS as string,
+            address: mailUser,
         },
         to: email,
-        subject: "[Amrita Centre for Entrepreneurship] Registration: OTP",
+        subject: subjects.registration,
         html: RegistrationOTPTemplate(username, otp),
 
     };
