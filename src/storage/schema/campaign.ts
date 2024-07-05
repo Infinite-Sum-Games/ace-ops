@@ -1,4 +1,4 @@
-import { pgTable, serial, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, uuid, timestamp } from "drizzle-orm/pg-core";
 import MailTable from "./mailingList";
 import SubscriberTable from "./subscribers";
 
