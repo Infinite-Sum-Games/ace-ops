@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, integer } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, integer, timestamp } from "drizzle-orm/pg-core";
 import UserTable from "./user";
 
 const AlumniTable = pgTable("alumni", {
@@ -9,6 +9,8 @@ const AlumniTable = pgTable("alumni", {
     lastName: varchar("lastName", { length: 100 }).notNull(),
     remarks: varchar("remarks", { length: 500 }).notNull(),
     graduationYear: integer("graduationYear").default(2026).notNull(),
+    createdAt: timestamp("createdAt", { mode: "string" }).defaultNow().notNull(),
+    updatedAt: timestamp("createdAt", { mode: "string" }).defaultNow().notNull(),
 });
 
 export default AlumniTable;
