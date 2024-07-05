@@ -33,6 +33,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
+    "drizzle-zod": "^0.5.1",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "helmet": "^7.1.0",
@@ -48,6 +49,8 @@
     "@types/nodemailer": "^6.4.15",
     "@types/otp-generator": "^4.0.2",
     "@types/pg": "^8.11.6",
+    "cross-env": "^7.0.3",
+    "dotenv-expand": "^11.0.6",
     "drizzle-kit": "^0.22.7",
     "nodemailer": "^6.9.14",
     "typescript": "^5.5.2"
