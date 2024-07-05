@@ -62,4 +62,3 @@ const validateToken = async(req: Request, res: Response, next: NextFunction) => 
 }
 
 export { createToken, validateToken };
-console.log("hello".split(" ")[1]);
