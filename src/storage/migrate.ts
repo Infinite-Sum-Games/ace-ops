@@ -1,15 +1,12 @@
-import "dotenv/config";
-import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { drizzle } from "drizzle-orm/postgres-js";
 
-const migrateClient = postgres(process.env.DATABASE_URL as string, { max: 1 });
+import config from "$/drizzle.config";
+import { db, connection } from "@/storage";
+import env from "@/env";
 
-const runMigration = async() => {
-    await migrate(drizzle(migrateClient), {
-        migrationsFolder: "./migrations/",
-    });
-    await migrateClient.end();
+if(!env.DB_MIGRATING){
+    throw new Error("Error: Set DB_MIGRATING = \"true\" before running migrations");
 }
 
-runMigration();
+await migrate(db, { migrationsFolder: config.out! });
+await connection.end();
