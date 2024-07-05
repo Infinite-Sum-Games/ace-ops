@@ -9,16 +9,23 @@ const stringBoolean = z.coerce.string().transform((val) => {
 }).default("false");
 
 const EnvSchema = z.object({
+
     NODE_ENV: z.string().default("development"),
+    PORT: z.string(),
+
+    DB_CONNECTION_STRING: z.string(),
     // --- The connection string must haves:
     // DB_HOST: z.string()
     // DB_USER: z.string()
     // DB_PASSWORD: z.string(),
     // DB_NAME: z.string(),
     // DB_PORT: z.coerce.string(),
-    DB_CONNECTION_STRING: z.string(),
-    DB_MIGRATING: stringBoolean,
-    BD_SEEDING: stringBoolean,
+    DB_MIGRATING: stringBoolean, // run-time flags (not needed in .env)
+    DB_SEEDING: stringBoolean,   // run-time flags (not needed in .env)
+
+    MAIL_HOST: z.string(),
+    EMAIL_ID: z.string(),
+    EMAIL_APP_KEY: z.string(),
 });
 
 export type EnvSchema = z.infer<typeof EnvSchema>;
