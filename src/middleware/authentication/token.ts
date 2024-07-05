@@ -27,6 +27,14 @@ const createToken = async(email: string) => {
     return token;
 }
 
+const createTempToken = async(email: string) => {
+    const data = { email, secretKey };
+    const privateKey = fs.readFileSync("../../encryption/private_key.pem");
+    const token = await V4.sign(data, privateKey, { expiresIn: '5m' });
+
+    return token;
+}
+
 const validateToken = async(req: Request, res: Response, next: NextFunction) => {
     const tokenHeader: string = req.headers.authorization as string;
     const token: string = tokenHeader.split(" ")[1];
@@ -61,4 +69,4 @@ const validateToken = async(req: Request, res: Response, next: NextFunction) => 
     }
 }
 
-export { createToken, validateToken };
+export { createToken, validateToken, createTempToken };
