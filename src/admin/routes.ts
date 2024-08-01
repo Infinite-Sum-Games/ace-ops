@@ -22,14 +22,17 @@ router.post("/office/edit/{adminId}", validateToken, handleEditAdmin);
 router.get("/events", validateToken, handleGetAllEvents);
 router.get("/events/drafts", validateToken, handleGetDraftEvents);
 router.get("/events/released", validateToken, handleGerReleasedEvents);
-router.get("/events/{eventId}", validateToken, handleGetEventById);
+router.get("/events/:eventId", validateToken, handleGetEventById);
 router.post("/events/new", validateToken, handleCreateEvent);
-router.post("/events/edit/{eventId}", validateToken, handleEditEvent);
+router.post("/events/edit/:eventId", validateToken, handleEditEvent);
 
 // Campaigns
 router.get("/campaigns", validateToken, handleGetAllCampaigns);
+router.get("/campaigns/:campaignId", validateToken, handleGetAllCampaigns);
 router.get("/campaigns/planned", validateToken, handleGetPlannedCampaigns);
 router.get("/campaigns/published", validateToken, handleGetPublishedCampaigns);
+router.post("/campaigns/new", validateToken, handleGetPublishedCampaigns);
+router.post("/campaigns/:campaignId/edit", validateToken, handleGetPublishedCampaigns);
 
 
 export default router;
