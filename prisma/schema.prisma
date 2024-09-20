@@ -1,0 +1,181 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String         @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String         @unique
+  password     String
+  organization String
+  designation  Designation    @default(Student)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now())
+  Registration Registration[]
+
+  @@index([email, createdAt(sort: Desc)])
+}
+
+model Admin {
+  id         String    @id @default(cuid())
+  firstName  String
+  lastName   String
+  department String
+  email      String
+  password   String
+  role       AdminRole @default(Student)
+  isActive   Boolean   @default(true)
+}
+
+model Event {
+  id                String              @id @default(cuid())
+  name              String
+  startTime         DateTime?
+  endTime           DateTime?
+  guests            String[]
+  venue             String?
+  posterURL         String?
+  recordingURL      String?
+  tags              String[]
+  status            Status              @default(Draft)
+  entry             EventEntry          @default(Free)
+  mode              EventMode           @default(Offline)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now())
+  eventFee          Int                 @db.Oid
+  SponsorsForEvents SponsorsForEvents[]
+  Registration      Registration[]
+  Suggestions       Suggestions[]
+
+  @@index([name, createdAt(sort: Desc)])
+}
+
+model Sponsor {
+  id                String              @id @default(cuid())
+  name              String
+  email             String
+  phone             String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now())
+  SponsorsForEvents SponsorsForEvents[]
+
+  @@index([name, createdAt(sort: Desc)])
+}
+
+model SponsorsForEvents {
+  eventId   String
+  sponsorId String
+
+  event   Event   @relation(fields: [eventId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  sponsor Sponsor @relation(fields: [sponsorId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@id([eventId, sponsorId])
+}
+
+model Registration {
+  id          String        @id @default(cuid())
+  eventId     String
+  userId      String
+  attended    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  Suggestions Suggestions[]
+
+  event Event @relation(fields: [eventId], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  user  User  @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model Campaign {
+  id              String            @id @default(cuid())
+  campaignTitle   String
+  frequency       CampaignFrequency @default(Monthly)
+  campaignContent CampaignContent[]
+  Subscribers     Subscribers[]
+}
+
+model CampaignContent {
+  id          Int      @id @default(autoincrement()) @db.Oid
+  campaignId  String
+  scheduledOn DateTime
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+}
+
+model Subscribers {
+  id         Int      @id @default(autoincrement()) @db.Oid
+  campaignId String
+  isUser     Boolean
+  createdAt  DateTime
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+}
+
+model Blogs {
+  id          String    @id @default(cuid())
+  title       String
+  displayURL  String?
+  blurb       String?
+  content     String?
+  author      String?
+  tags        String[]
+  status      Status    @default(Draft)
+  publishedOn DateTime?
+}
+
+model Suggestions {
+  id             Int      @id @default(autoincrement()) @db.Oid
+  eventId        String
+  registrationId String
+  content        String
+  createdAt      DateTime
+
+  event        Event        @relation(fields: [eventId], references: [id])
+  registration Registration @relation(fields: [registrationId], references: [id])
+}
+
+enum CampaignFrequency {
+  Monthly
+  Semesterly
+  BiYearly
+  Yearly
+  None
+}
+
+enum AdminRole {
+  Student
+  Faculty
+}
+
+enum EventEntry {
+  Paid
+  Free
+}
+
+enum EventMode {
+  Offline
+  Online
+  Hybrid
+}
+
+enum Status {
+  Draft
+  Published
+}
+
+enum Designation {
+  Student
+  Professional
+}
