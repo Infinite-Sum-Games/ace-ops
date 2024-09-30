@@ -20,21 +20,21 @@ export const AdminLoginHandler = async (req: Request, res: Response) => {
       }
     });
 
-    const accessToken = await createToken(validBody.data.email);
-
-    if (existingAdmin) {
-      return res.status(200).json({
-        message: "Login Successful",
-        adminFirstName: existingAdmin.firstName,
-        adminLastName: existingAdmin.lastName,
-        adminEmail: existingAdmin.email,
-        accessToken,
-      });
-    } else {
+    if (!existingAdmin) {
       return res.status(403).json({
         message: "Username or Password does not match!"
       });
     }
+
+    const accessToken = await createToken(validBody.data.email);
+
+    return res.status(200).json({
+      message: "Login Successful",
+      adminFirstName: existingAdmin.firstName,
+      adminLastName: existingAdmin.lastName,
+      adminEmail: existingAdmin.email,
+      accessToken,
+    });
   } catch (e) {
     // TODO: Setup logger for all internal server errors
     return res.status(500).json({
