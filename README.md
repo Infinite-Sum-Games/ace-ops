@@ -1,7 +1,7 @@
 # ACE - Ops
 
 ## Tech
-> NodeJS, ExpressJS, TypeScript, Nodemailer, Paseto-Auth Tokens, DrizzleORM,
+> NodeJS, ExpressJS, TypeScript, Nodemailer, Paseto-Auth Tokens, Prisma,
 PostgreSQL, Docker
 
 ## Overview
