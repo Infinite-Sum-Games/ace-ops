@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 
 import adminRouter from "@/routes/admin.routes"
+// import eventRouter from "@/routes/event.routes"
 import { PrismaClient } from "@prisma/client";
 
 const server = express();
