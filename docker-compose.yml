@@ -3,10 +3,10 @@ version: "3.7"
 services:
   postgres:
     image: postgres:latest
-    name: ace-postgres
+    container_name: ace_postgres
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
       POSTGRES_DB: ace
     ports:
-      - "5432:5432"
+      - "5433:5432"
