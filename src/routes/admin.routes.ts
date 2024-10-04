@@ -1,5 +1,12 @@
 import { AdminLoginHandler } from "@/controllers/admin/office";
 import { Router } from "express";
+import { validateToken } from "@/middleware/authentication/token";
+import {
+  GetAllEventsHandler,
+  GetDraftEventsHandler,
+  handleGetReleasedEvents,
+  GetEventByIdHandler
+} from "@/controllers/admin/event";
 
 const router = Router();
 
@@ -11,10 +18,10 @@ router.post("/office/login", AdminLoginHandler);
 // router.post("/office/edit/{adminId}", validateToken, EditAdminHandler);
 
 // Events
-// router.get("/events", validateToken, GetAllEventsHandler);
-// router.get("/events/drafts", validateToken, GetDraftEventsHandler);
-// router.get("/events/released", validateToken, handleGerReleasedEvents);
-// router.get("/events/:eventId", validateToken, GetEventByIdHandler);
+router.get("/events", validateToken, GetAllEventsHandler);
+router.get("/events/drafts", validateToken, GetDraftEventsHandler);
+router.get("/events/released", validateToken, handleGetReleasedEvents);
+router.get("/events/:eventId", validateToken, GetEventByIdHandler);
 // router.post("/events/new", validateToken, CreateEventHandler);
 // router.post("/events/edit/:eventId", validateToken, EditEventHandler);
 

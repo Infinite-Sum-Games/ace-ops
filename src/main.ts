@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 
 import adminRouter from "@/routes/admin.routes"
+// import eventRouter from "@/routes/event.routes"
+
 import { PrismaClient } from "@prisma/client";
 
 const server = express();
@@ -20,7 +22,7 @@ server.use("/api/v1/test", (_, res) => {
   });
 });
 
-server.use("api/v1/admin", adminRouter);
+server.use("/api/v1/admin", adminRouter);
 // server.use("/api/v1/user", generalRouter);
 // server.use("/api/v1/mail", mailRouter);
 // server.use("/api/v1/event", eventRouter);
