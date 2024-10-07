@@ -21,8 +21,8 @@ model User {
   password     String
   organization String
   designation  Designation    @default(Student)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now())
+  createdAt    DateTime?      @default(now())
+  updatedAt    DateTime?      @updatedAt
   Registration Registration[]
 
   @@index([email, createdAt(sort: Desc)])
@@ -52,9 +52,9 @@ model Event {
   status            Status              @default(Draft)
   entry             EventEntry          @default(Free)
   mode              EventMode           @default(Offline)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now())
-  eventFee          Int                 @db.Oid
+  createdAt         DateTime?           @default(now())
+  updatedAt         DateTime?           @updatedAt
+  eventFee          Int?                @db.Oid
   SponsorsForEvents SponsorsForEvents[]
   Registration      Registration[]
   Suggestions       Suggestions[]
@@ -67,8 +67,8 @@ model Sponsor {
   name              String
   email             String
   phone             String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now())
+  createdAt         DateTime?           @default(now())
+  updatedAt         DateTime?           @updatedAt
   SponsorsForEvents SponsorsForEvents[]
 
   @@index([name, createdAt(sort: Desc)])
@@ -89,7 +89,7 @@ model Registration {
   eventId     String
   userId      String
   attended    Boolean       @default(false)
-  createdAt   DateTime      @default(now())
+  createdAt   DateTime?     @default(now())
   Suggestions Suggestions[]
 
   event Event @relation(fields: [eventId], references: [id], onUpdate: Cascade, onDelete: Restrict)
@@ -115,10 +115,10 @@ model CampaignContent {
 }
 
 model Subscribers {
-  id         Int      @id @default(autoincrement()) @db.Oid
+  id         Int       @id @default(autoincrement()) @db.Oid
   campaignId String
   isUser     Boolean
-  createdAt  DateTime
+  createdAt  DateTime? @default(now())
 
   campaign Campaign @relation(fields: [campaignId], references: [id])
 }
@@ -140,7 +140,7 @@ model Suggestions {
   eventId        String
   registrationId String
   content        String
-  createdAt      DateTime
+  createdAt      DateTime @default(now())
 
   event        Event        @relation(fields: [eventId], references: [id])
   registration Registration @relation(fields: [registrationId], references: [id])
