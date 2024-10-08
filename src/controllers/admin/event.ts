@@ -1,6 +1,7 @@
 import { prismaClient } from "@/main";
 import { Request, Response } from "express";
 import { EventValidator,EventEditValidator } from "@/types/auth";
+import { z } from "zod";
 
 
 export const GetAllEventsHandler = async (_: Request, res: Response) => {
@@ -29,11 +30,16 @@ export const GetAllEventsHandler = async (_: Request, res: Response) => {
 
 
 export const GetEventByIdHandler = async (req: Request, res: Response) => {
-  const eventId = req.params.eventId;
+  const eventId = z.string().cuid().safeParse(req.params.eventId);
+  if (!eventId.success) {
+    return res.status(400).json({
+      message: "Invalid Event ID provided!"
+    })};
+    
   try {
     const event = await prismaClient.event.findFirst({
       where: {
-        id: eventId
+        id: eventId.data
       }
     });
     if (!event) {
@@ -106,11 +112,15 @@ export const EditEventHandler =async (req : Request, res : Response) => {
     });
   }
 
-  const id = req.params.eventId;
+  const id = z.string().cuid().safeParse(req.params.eventId);
+  if (!id.success) {
+    return res.status(400).json({
+      message: "Invalid Event ID provided!"
+    })};
 
   const event = await prismaClient.event.findFirst({
     where : {
-      id : id
+      id : id.data
     }
   })
   if(!event){
@@ -123,7 +133,7 @@ export const EditEventHandler =async (req : Request, res : Response) => {
     const event = await prismaClient.$transaction(async(tx)=>{
       const updatedEvent=await tx.event.update({
       where : {
-        id : id
+        id : id.data
       },
       data: {
         name:validevent.data.name,
