@@ -3,9 +3,9 @@ import { Router } from "express";
 import { validateToken } from "@/middleware/authentication/token";
 import {
   GetAllEventsHandler,
-  GetDraftEventsHandler,
-  handleGetReleasedEvents,
-  GetEventByIdHandler
+  GetEventByIdHandler,
+  CreateEventHandler,
+  EditEventHandler,
 } from "@/controllers/admin/event";
 
 const router = Router();
@@ -19,12 +19,10 @@ router.post("/office/login", AdminLoginHandler);
 
 // Events
 router.get("/events", validateToken, GetAllEventsHandler);
-router.get("/events/drafts", validateToken, GetDraftEventsHandler);
-router.get("/events/released", validateToken, handleGetReleasedEvents);
 router.get("/events/:eventId", validateToken, GetEventByIdHandler);
-// router.post("/events/new", validateToken, CreateEventHandler);
-// router.post("/events/edit/:eventId", validateToken, EditEventHandler);
-
+router.post("/events/new", validateToken, CreateEventHandler);
+router.post("/events/edit/:eventId", validateToken, EditEventHandler);
+  
 // Campaigns
 // router.get("/campaigns", validateToken, handleGetAllCampaigns);
 // router.get("/campaigns/:campaignId", validateToken, handleGetAllCampaigns);

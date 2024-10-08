@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import generateKey from "./encryption/generate";
 
 import adminRouter from "@/routes/admin.routes"
 // import eventRouter from "@/routes/event.routes"
@@ -36,3 +37,5 @@ server.use("*", (_, res) => {
 server.listen(port, () => {
   console.log(`Server is listening at http://localhost:${port}`);
 });
+
+generateKey();
