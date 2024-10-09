@@ -47,49 +47,40 @@ export const AdminLoginHandler = async (req: Request, res: Response) => {
 
 export const AdminDashboardHandler = async (req: Request, res: Response) => {
   try{
-    const activeMembers_thisyear = await prismaClient.user.count({
-      where: {
-        createdAt : {gte : new Date(new Date().getFullYear(),0,1)}
+
+    const now = new Date();
+    const thisyear_start = new Date(now.getFullYear(),0,1);
+    const lastyear_start = new Date(now.getFullYear()-1,0,1);
+
+    const users = await prismaClient.user.findMany({
+      select:{
+        createdAt:true
       }
     });
 
-    const activeMembers_alltime = await prismaClient.user.count()
+    const activeMembers_thisyear = users.filter((user) => user.createdAt && user.createdAt >= thisyear_start).length;
+    const activeMembers_alltime = users.length;
+    const activeMembers_lastyear = users.filter((user) => user.createdAt && user.createdAt >= lastyear_start && user.createdAt < thisyear_start).length;
 
-    const activeMembers_lastyear = await prismaClient.user.count({
-      where: {
-        createdAt : {gte : new Date(new Date().getFullYear()-1,0,1), lt : new Date(new Date().getFullYear(),0,1)}
+    const events = await prismaClient.event.findMany({
+      select:{
+        endTime:true,
+        startTime:true
+      }
+    });
+    
+    const eventsCompleted_thisyear = events.filter((event)=>event.endTime && event.endTime>thisyear_start && event.endTime<=now).length;
+    const eventsCompleted_alltime = events.filter((event)=>event.endTime && event.endTime<=now).length;
+    const eventsCompleted_lastyear = events.filter((event)=>event.endTime && event.endTime>=lastyear_start && event.endTime<thisyear_start).length;
+
+    const registrations = await prismaClient.registration.findMany({
+      select:{
+        createdAt:true
       }
     });
 
-    const EventsCompleted_thisyear = await prismaClient.event.count({
-      where:{
-        endTime : {gte : new Date(new Date().getFullYear(),0,1), lte : new Date()}
-      }
-    });
-
-    const EventsCompleted_alltime = await prismaClient.event.count({
-      where:{
-        endTime : {lte : new Date()}
-      }
-    });
-
-    const EventsCompleted_lastyear = await prismaClient.event.count({
-      where:{
-        endTime : {gte : new Date(new Date().getFullYear()-1,0,1), lte : new Date(new Date().getFullYear(),0,1)}
-      }
-    });
-
-    const registrations_thisyear = await prismaClient.registration.count({
-      where:{
-        createdAt : {gte : new Date(new Date().getFullYear(),0,1)}
-      }
-    });
-
-    const events_thisyear = await prismaClient.event.count({
-      where:{
-        startTime : {gte : new Date(new Date().getFullYear(),0,1)}
-      }
-    });
+    const registrations_thisyear = registrations.filter((registration)=>registration.createdAt && registration.createdAt>=thisyear_start).length;
+    const events_thisyear = events.filter((event)=>event.startTime && event.startTime>=thisyear_start).length;
 
     let avgregistrations_thisyear = registrations_thisyear/events_thisyear;
 
@@ -97,9 +88,8 @@ export const AdminDashboardHandler = async (req: Request, res: Response) => {
       avgregistrations_thisyear = 0;
     }
 
-    const registrations_alltime = await prismaClient.registration.count();
-
-    const events_alltime = await prismaClient.event.count();
+    const registrations_alltime = registrations.length;
+    const events_alltime = events.length;
 
     let avgregistrations_alltime = registrations_alltime/events_alltime;
 
@@ -107,17 +97,8 @@ export const AdminDashboardHandler = async (req: Request, res: Response) => {
       avgregistrations_alltime = 0;
     }
 
-    const registrations_lastyear = await prismaClient.registration.count({
-      where:{
-        createdAt : {gte : new Date(new Date().getFullYear()-1,0,1), lt : new Date(new Date().getFullYear(),0,1)}
-      }
-    });
-
-    const events_lastyear = await prismaClient.event.count({
-      where:{
-        startTime : {gte : new Date(new Date().getFullYear()-1,0,1), lt : new Date(new Date().getFullYear(),0,1)}
-      }
-    });
+    const registrations_lastyear = registrations.filter((registration)=>registration.createdAt && registration.createdAt>=lastyear_start && registration.createdAt<thisyear_start).length;
+    const events_lastyear = events.filter((event)=>event.startTime && event.startTime>=lastyear_start && event.startTime<thisyear_start).length;
 
     let avgregistrations_lastyear = registrations_lastyear/events_lastyear;
 
@@ -125,19 +106,15 @@ export const AdminDashboardHandler = async (req: Request, res: Response) => {
       avgregistrations_lastyear = 0;
     }
 
-    const campaign_thisyear = await prismaClient.campaign.count({
-      where:{
-        createdAt : {gte : new Date(new Date().getFullYear(),0,1)}
+    const campaigns = await prismaClient.campaign.findMany({
+      select:{
+        createdAt:true
       }
-    })
+    });
 
-    const campaign_alltime = await prismaClient.campaign.count();
-
-    const campaign_lastyear = await prismaClient.campaign.count({
-      where:{
-        createdAt : {gte : new Date(new Date().getFullYear()-1,0,1), lt : new Date(new Date().getFullYear(),0,1)}
-      }
-    })
+    const campaign_thisyear = campaigns.filter((campaign)=>campaign.createdAt && campaign.createdAt>=thisyear_start).length;
+    const campaign_alltime = campaigns.length;
+    const campaign_lastyear = campaigns.filter((campaign)=>campaign.createdAt && campaign.createdAt>=lastyear_start && campaign.createdAt<thisyear_start).length;
 
     const data = {
       ActiveMembers: {
@@ -146,16 +123,16 @@ export const AdminDashboardHandler = async (req: Request, res: Response) => {
         LastYear: activeMembers_lastyear
       },
       EventsCompleted: {
-        ThisYear: EventsCompleted_thisyear,
-        AllTime: EventsCompleted_alltime,
-        LastYear: EventsCompleted_lastyear
+        ThisYear: eventsCompleted_thisyear,
+        AllTime: eventsCompleted_alltime,
+        LastYear: eventsCompleted_lastyear
       },
       AvgAttendeesPerEvent:{
         ThisYear: avgregistrations_thisyear.toFixed(3),
         AllTime: avgregistrations_alltime.toFixed(3),
         LastYear: avgregistrations_lastyear.toFixed(3)
       },
-      campaigns:{
+      Campaigns:{
         ThisYear: campaign_thisyear,
         AllTime: campaign_alltime,
         LastYear: campaign_lastyear
@@ -171,21 +148,21 @@ export const AdminDashboardHandler = async (req: Request, res: Response) => {
 
     const month = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
-    const attandees_month = new Array(12).fill(0);
+    const attendees_month = new Array(12).fill(0);
 
     registration.forEach((event)=>{
       if (event.startTime && event.startTime.getFullYear()==new Date().getFullYear() && event.Registration){
-        attandees_month[new Date(event.startTime).getMonth()] += event.Registration.length;
+        attendees_month[new Date(event.startTime).getMonth()] += event.Registration.length;
       }
     });
 
-    const charData = attandees_month.map((attendees: number, index: number) => ({
+    const char_data = attendees_month.map((attendees: number, index: number) => ({
       month: month[index],attendees: attendees
     }));
 
     return res.status(200).json({
       data,
-      charData
+      char_data
     });
   }
 
