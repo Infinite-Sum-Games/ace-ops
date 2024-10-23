@@ -65,3 +65,4 @@ node dist/index.js
 This application has been authored by - 
 1. [Ritesh Koushik (ASC 2022-26)](https://github.com/IAmRiteshKoushik)
 2. [Shrish Kumar Lohchab (ASC 2022-26)](https://github.com/Shrishkumar22)
+3. [Nandgopal R Nair (ASC 2023-27)](https://github.com/Nandgopal-R)
