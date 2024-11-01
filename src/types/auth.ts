@@ -29,3 +29,13 @@ export const EventEditValidator = z.object({
     mode : z.enum(["Online","Offline","Hybrid"]).default("Offline").optional(),
     eventFee : z.number().positive().finite().optional()
 })
+
+export const CreateAdminValidator = z.object({
+    faculty_email: z.string().email(),
+    faculty_password: z.string().min(6),
+    admin_first_name: z.string().min(3).regex(/^[a-zA-Z ]+$/),
+    admin_last_name: z.string().min(3).regex(/^[a-zA-Z ]+$/),
+    admin_department: z.string().min(3).regex(/^[a-zA-Z ]+$/),
+    admin_mail: z.string().email(),
+
+})
