@@ -1,4 +1,4 @@
-import { AdminLoginHandler } from "@/controllers/admin/office";
+import { AdminLoginHandler, GetAllAdminHandler } from "@/controllers/admin/office";
 import { Router } from "express";
 import { validateToken } from "@/middleware/authentication/token";
 import {
@@ -13,7 +13,7 @@ const router = Router();
 // Admin-Controls
 router.post("/office/login", AdminLoginHandler);
 // router.get("/office/dashboard", validateToken, AdminDashboardHandler);
-// router.get("/office", validateToken, GetAllAdminHandler);
+router.get("/office", validateToken, GetAllAdminHandler);
 // router.post("/office/new", validateToken, CreateAdminHandler);
 // router.post("/office/edit/{adminId}", validateToken, EditAdminHandler);
 
