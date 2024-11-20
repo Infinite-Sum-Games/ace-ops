@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import RegistrationOTPTemplate from "./templates/user_registration";
+import { RegistrationOTPTemplate, AdminPasswordTemplate } from "./templates/user_registration";
 import { config } from "dotenv";
 
 config({ path: ".env" });
@@ -9,6 +9,9 @@ console.log(process.env.MAIL_HOST);
 const mailHost = process.env.MAIL_HOST as string;
 const mailUser = process.env.EMAIL_ID as string;
 const mailPass = process.env.EMAIL_APP_KEY as string;
+// const mailHost = "gmail";
+// const mailUser = "acetrial87@gmail.com";
+// const mailPass ="aceAdmin@2024";
 // To be generalized later
 const subjects = {
     registration: "Amrita Centre for Entrepreneurship - Registration: OTP",
@@ -17,6 +20,9 @@ const subjects = {
 }
 
 const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 587,  // Use 465 for SSL or 587 for STARTTLS
+    secure: false,  // false for STARTTLS
     service: mailHost,
     auth: {
         user: mailUser,
@@ -24,7 +30,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-const sendRegistrationOTP = (username: string, otp: string, email: string) => {
+export const sendRegistrationOTP = (username: string, otp: string, email: string) => {
     const mailOptions = {
         from: {
             name: "ACE",
@@ -44,4 +50,22 @@ const sendRegistrationOTP = (username: string, otp: string, email: string) => {
     });
 }
 
-export default sendRegistrationOTP;
+
+export const sendAdminPassword = (username: string, email: string, password: string) => {
+    const mailOptions = {
+        from: {
+            name: "ACE",
+            address: mailUser,
+        },
+        to: "email",
+        subject: "Amrita Centre for Entrepreneurship - Admin Account Details",
+        html: AdminPasswordTemplate(username, email, password), 
+    };
+    transporter.sendMail(mailOptions, (error, _) => {
+        if (error){
+            console.log("Could not send Password\n" + error);
+        } else {
+            console.log("Mail sent to: " + email);
+        }
+    });
+}

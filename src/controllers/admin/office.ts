@@ -4,6 +4,9 @@ import { AdminLoginRequest } from "@/types/login";
 import { Request, Response } from "express";
 import { z } from "zod";
 import {CreateAdminValidator} from "@/types/auth";
+import { RandomPassword } from "@/types/pwd_generator";
+import { sendAdminPassword } from "@/mail/mailer";
+import {newHash} from "@/config/hash";
 
 // Existing login handler
 export const AdminLoginHandler = async (req: Request, res: Response) => {
@@ -99,7 +102,7 @@ export const CreateAdminHandler = async (req: Request, res: Response) => {
 
   try {
     const admins = await prismaClient.$transaction(async (trx) => {
-      // Check if faculty exists
+      // Checking if faculty exists
       const existingFaculty = await trx.admin.findFirst({
         where: {
           email: faculty_email,
@@ -115,7 +118,10 @@ export const CreateAdminHandler = async (req: Request, res: Response) => {
         throw new Error("InvalidFaculty");  // Signal invalid role or password
       }
 
-      // Assuming code to create admin follows
+      const password = RandomPassword();
+
+      const doublehashedpwd = newHash(newHash(password));
+
       const newAdmin = await trx.admin.create({
         data: {
           firstName: details.data.admin_first_name,
@@ -123,9 +129,12 @@ export const CreateAdminHandler = async (req: Request, res: Response) => {
           department: details.data.admin_department,
           email: details.data.admin_mail,
           isActive: true,
-          password: "password",
+          password: doublehashedpwd,
         }
       });
+
+      // Send email to new admin
+      sendAdminPassword(newAdmin.firstName, newAdmin.email, password);
 
       return newAdmin;
     });
