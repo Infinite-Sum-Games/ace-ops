@@ -1,15 +1,19 @@
 import { z } from "zod";
 
 const departments =[
-  "Computer Science and Engineering",
-  "Electrical and Electronics Engineering",
-  "Electronics and Communication Engineering",
-  "Mechanical Engineering",
-  "Civil Engineering",
-  "Chemical Engineering",
   "Aerospace Engineering",
-  "Automation and Robotics",
-  "Physical Sciences",
+  "Artificial Intelligence Engineering",
+  "Artificial Intelligence and Data Science Engineering",
+  "Automation and Robotics Engineering",
+  "Computer and Communication Engineering",
+  "Chemical Engineering",
+  "Civil Engineering",
+  "Computer Science and Engineering",
+  "Cyber Security Engineering",
+  "Electrical and Communication Engineering",
+  "Electrical and Electronics Engineering",
+  "Electrical and Computer Engineering",
+  "Mechanical Engineering"
 ]
 
 export const CreateAdminValidator = z.object({

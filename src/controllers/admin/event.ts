@@ -1,6 +1,6 @@
 import { prismaClient } from "@/main";
 import { Request, Response } from "express";
-import { EventValidator, EventEditValidator } from "@/types/event";
+import { CreateEventValidator, EventEditValidator } from "@/types/event";
 import { z } from "zod";
 
 
@@ -61,7 +61,7 @@ export const GetEventByIdHandler = async (req: Request, res: Response) => {
 
 export const CreateEventHandler = async (req: Request, res: Response) => {
 
-  const validevent = EventValidator.safeParse(req.body);
+  const validevent = CreateEventValidator.safeParse(req.body);
 
   if (!validevent.success) {
     console.log(validevent.error);

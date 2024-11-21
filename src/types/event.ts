@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const EventValidator = z.object({
+export const CreateEventValidator = z.object({
   name: z.string().trim().min(3).regex(/^[a-zA-Z0-9_ ]+$/),
   startTime: z.coerce.date().optional(),
   endTime: z.coerce.date().optional(),
