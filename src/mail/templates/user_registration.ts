@@ -58,6 +58,8 @@ export const AdminPasswordTemplate = (username: string, email: string, password:
         <p><b>Email:</b> ${email}</p>
         <p><b>Password:</b> ${password}</p>
         <br />
+        <p><i>Note: Please do not share this password with anyone to ensure the security of your account.</i></p>
+        <br />
         <p><b>Regards,</b></p>
         <p><b>Amrita Centre for Entrepreneurship</b></p>
     </body>

@@ -96,15 +96,17 @@ export const CreateAdminHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const faculty_email = details.data.faculty_email;
-  const faculty_password = details.data.faculty_password;
+  const facultyEmail = details.data.facultyEmail;
+  const facultyPassword = details.data.facultyPassword;
 
   try {
     const admins = await prismaClient.$transaction(async (trx) => {
       // Checking if faculty exists
       const existingFaculty = await trx.admin.findFirst({
         where: {
-          email: faculty_email,
+          email: facultyEmail,
+          password: facultyPassword,
+          role: "Faculty"
         }
       });
 
@@ -112,23 +114,17 @@ export const CreateAdminHandler = async (req: Request, res: Response) => {
         throw new Error("FacultyNotFound");  // Signal faculty not found
       }
 
-      // Check if role and password are correct
-      if (existingFaculty.role !== "Faculty" || existingFaculty.password !== faculty_password) {
-        throw new Error("InvalidFaculty");  // Signal invalid role or password
-      }
-
       const password = RandomPassword();
-
-      const doublehashedpwd = newHash(newHash(password));
+      const doubleHashedPassword = newHash(newHash(password));
 
       const newAdmin = await trx.admin.create({
         data: {
-          firstName: details.data.admin_first_name,
-          lastName: details.data.admin_last_name,
-          department: details.data.admin_department,
-          email: details.data.admin_mail,
+          firstName: details.data.adminFirstName,
+          lastName: details.data.adminLastName,
+          department: details.data.department,
+          email: details.data.adminEmail,
           isActive: true,
-          password: doublehashedpwd,
+          password: doubleHashedPassword,
         }
       });
 
