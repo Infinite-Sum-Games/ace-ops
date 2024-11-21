@@ -11,7 +11,6 @@ const mailUser = process.env.EMAIL_ID as string;
 const mailPass = process.env.EMAIL_APP_KEY as string;
 // const mailHost = "gmail";
 // const mailUser = "acetrial87@gmail.com";
-// const mailPass ="aceAdmin@2024";
 // To be generalized later
 const subjects = {
     registration: "Amrita Centre for Entrepreneurship - Registration: OTP",
