@@ -2,11 +2,10 @@ import { prismaClient } from "@/main";
 import { createToken } from "@/middleware/authentication/token";
 import { AdminLoginRequest } from "@/types/login";
 import { Request, Response } from "express";
-import { z } from "zod";
-import {CreateAdminValidator} from "@/types/auth";
-import { RandomPassword } from "@/types/pwd_generator";
+import { CreateAdminValidator } from "@/types/register";
+import { RandomPassword } from "@/config/pwd_generator";
 import { sendAdminPassword } from "@/mail/mailer";
-import {newHash} from "@/config/hash";
+import { newHash } from "@/config/hash";
 
 // Existing login handler
 export const AdminLoginHandler = async (req: Request, res: Response) => {
@@ -66,9 +65,9 @@ export const GetAllAdminHandler = async (req: Request, res: Response) => {
           email: true,
           role: true
         },
-        
+
       }
-    ); 
+    );
 
     if (!currentAdmins) {
       return res.status(404).json({

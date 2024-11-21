@@ -1,11 +1,10 @@
 export const RegistrationOTPTemplate = (username: string, otp: string) => {
-    return(
-`
+  return (
+    `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amrita Centre for Entrepreneurship - Registration OTP</title>
     <style>
         * {
@@ -30,12 +29,11 @@ export const RegistrationOTPTemplate = (username: string, otp: string) => {
     <p><b>Amrita Centre for Entrepreneurship<b></p>
     </body>
 </html>`
-    );
+  );
 }
 
-
 export const AdminPasswordTemplate = (username: string, email: string, password: string) => {
-    return `
+  return `
     <!DOCTYPE html>
     <html lang="en">
     <head>

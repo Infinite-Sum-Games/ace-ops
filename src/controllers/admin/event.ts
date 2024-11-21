@@ -1,6 +1,6 @@
 import { prismaClient } from "@/main";
 import { Request, Response } from "express";
-import { EventValidator,EventEditValidator } from "@/types/auth";
+import { EventValidator, EventEditValidator } from "@/types/event";
 import { z } from "zod";
 
 
@@ -34,8 +34,9 @@ export const GetEventByIdHandler = async (req: Request, res: Response) => {
   if (!eventId.success) {
     return res.status(400).json({
       message: "Invalid Event ID provided!"
-    })};
-    
+    })
+  };
+
   try {
     const event = await prismaClient.event.findFirst({
       where: {
@@ -62,7 +63,7 @@ export const CreateEventHandler = async (req: Request, res: Response) => {
 
   const validevent = EventValidator.safeParse(req.body);
 
-  if(!validevent.success){
+  if (!validevent.success) {
     console.log(validevent.error);
     return res.status(400).json({
       message: "Invalid Event data provided!"
@@ -70,25 +71,25 @@ export const CreateEventHandler = async (req: Request, res: Response) => {
   }
 
   try {
-    const event = await prismaClient.$transaction(async(tx)=>{
-      const createdEvent=await tx.event.create({
-      data: {
-        name:validevent.data.name,
-        startTime:validevent.data.startTime,
-        endTime:validevent.data.endTime,
-        guests:validevent.data.guests,
-        venue:validevent.data.venue,
-        posterURL:validevent.data.posterURL,
-        recordingURL:validevent.data.recordingURL,
-        tags:validevent.data.tags,
-        status:validevent.data.status,
-        entry:validevent.data.entry,
-        mode:validevent.data.mode,
-        eventFee:validevent.data.eventFee,
-      },
+    const event = await prismaClient.$transaction(async (tx) => {
+      const createdEvent = await tx.event.create({
+        data: {
+          name: validevent.data.name,
+          startTime: validevent.data.startTime,
+          endTime: validevent.data.endTime,
+          guests: validevent.data.guests,
+          venue: validevent.data.venue,
+          posterURL: validevent.data.posterURL,
+          recordingURL: validevent.data.recordingURL,
+          tags: validevent.data.tags,
+          status: validevent.data.status,
+          entry: validevent.data.entry,
+          mode: validevent.data.mode,
+          eventFee: validevent.data.eventFee,
+        },
+      });
+      return createdEvent;
     });
-    return createdEvent;
-  });
 
     return res.status(200).json({
       event
@@ -102,10 +103,10 @@ export const CreateEventHandler = async (req: Request, res: Response) => {
   }
 }
 
-export const EditEventHandler =async (req : Request, res : Response) => {
+export const EditEventHandler = async (req: Request, res: Response) => {
 
   const validevent = EventEditValidator.safeParse(req.body);
-  if(!validevent.success){
+  if (!validevent.success) {
     console.log(validevent.error);
     return res.status(400).json({
       message: "Invalid Event data provided!"
@@ -116,42 +117,43 @@ export const EditEventHandler =async (req : Request, res : Response) => {
   if (!id.success) {
     return res.status(400).json({
       message: "Invalid Event ID provided!"
-    })};
+    })
+  };
 
   const event = await prismaClient.event.findFirst({
-    where : {
-      id : id.data
+    where: {
+      id: id.data
     }
   })
-  if(!event){
+  if (!event) {
     return res.status(404).json({
-      message : "Event not found!"
+      message: "Event not found!"
     })
   }
 
   try {
-    const event = await prismaClient.$transaction(async(tx)=>{
-      const updatedEvent=await tx.event.update({
-      where : {
-        id : id.data
-      },
-      data: {
-        name:validevent.data.name,
-        startTime:validevent.data.startTime,
-        endTime:validevent.data.endTime,
-        guests:validevent.data.guests,
-        venue:validevent.data.venue,
-        posterURL:validevent.data.posterURL,
-        recordingURL:validevent.data.recordingURL,
-        tags:validevent.data.tags,
-        status:validevent.data.status,
-        entry:validevent.data.entry,
-        mode:validevent.data.mode,
-        eventFee:validevent.data.eventFee,
-      },
+    const event = await prismaClient.$transaction(async (tx) => {
+      const updatedEvent = await tx.event.update({
+        where: {
+          id: id.data
+        },
+        data: {
+          name: validevent.data.name,
+          startTime: validevent.data.startTime,
+          endTime: validevent.data.endTime,
+          guests: validevent.data.guests,
+          venue: validevent.data.venue,
+          posterURL: validevent.data.posterURL,
+          recordingURL: validevent.data.recordingURL,
+          tags: validevent.data.tags,
+          status: validevent.data.status,
+          entry: validevent.data.entry,
+          mode: validevent.data.mode,
+          eventFee: validevent.data.eventFee,
+        },
+      });
+      return updatedEvent;
     });
-    return updatedEvent;
-  });
 
     return res.status(200).json({
       event
