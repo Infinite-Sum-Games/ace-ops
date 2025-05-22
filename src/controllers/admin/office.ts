@@ -1,19 +1,17 @@
-import { CustomError } from "@/errors/error";
 import { prismaClient } from "@/main";
 import { createToken } from "@/middleware/authentication/token";
-import { EditAdminValidator } from "@/types/admin";
-import { EventEditValidator } from "@/types/auth";
 import { AdminLoginRequest } from "@/types/login";
 import { Request, Response } from "express";
+import { CreateAdminValidator, UpdateAdminValidator } from "@/types/register";
+import { RandomPassword } from "@/config/pwd_generator";
+import { newHash } from "@/config/hash";
 
 // Existing login handler
 export const AdminLoginHandler = async (req: Request, res: Response) => {
   const validBody = AdminLoginRequest.safeParse(req.body);
 
-  if (validBody.success !== true) {
-    return res.status(400).json({
-      message: "Bad Request"
-    });
+  if (!validBody.success) {
+    return res.status(400).json({ message: "Bad Request" });
   }
 
   try {
@@ -21,14 +19,11 @@ export const AdminLoginHandler = async (req: Request, res: Response) => {
       where: {
         email: validBody.data.email,
         password: validBody.data.password,
-      }
+      },
     });
 
     if (!existingAdmin) {
-      console.log(existingAdmin)
-      return res.status(403).json({
-        message: "Username or Password does not match!"
-      });
+      return res.status(403).json({ message: "Username or Password does not match!" });
     }
 
     const accessToken = await createToken(validBody.data.email);
@@ -41,132 +36,139 @@ export const AdminLoginHandler = async (req: Request, res: Response) => {
       accessToken,
     });
   } catch (e) {
-    // TODO: Setup logger for all internal server errors
-    console.log(e)
-    return res.status(500).json({
-      message: "Internal Server Error! Please try again later."
-    });
+    console.error(e);
+    return res.status(500).json({ message: "Internal Server Error! Please try again later." });
   }
-}
+};
 
-// New handler to get current admin details
-export const GetAllAdminHandler = async (req: Request, res: Response) => {
+// Handler to get all active admins
+export const GetAllAdminHandler = async (_req: Request, res: Response) => {
   try {
-    const currentAdmins = await prismaClient.admin.findMany(
-      {
-        where: {
-          isActive: true,
-        },
-        select: {
-          firstName: true,
-          lastName: true,
-          department: true,
-          email: true,
-          role: true
-        },
-        
-      }
-    ); 
+    const currentAdmins = await prismaClient.admin.findMany({
+      where: { isActive: true },
+      select: {
+        firstName: true,
+        lastName: true,
+        department: true,
+        email: true,
+        role: true,
+      },
+    });
 
-    if (!currentAdmins) {
-      return res.status(404).json({
-        message: "No admin found"
-      });
+    if (!currentAdmins || currentAdmins.length === 0) {
+      return res.status(404).json({ message: "No admin found" });
     }
 
     return res.status(200).json({
       message: "Admin details fetched successfully",
-      admins: currentAdmins
+      admins: currentAdmins,
     });
   } catch (e) {
-    console.log(e)
-    return res.status(500).json({
-      message: "Failed to retrieve admin details"
-    });
+    return res.status(500).json({ message: "Failed to retrieve admin details" });
   }
 };
 
-export const EditAdminHandler = async (req: Request & { user: { email: string; role: 'Student' | 'Faculty' } }, res: Response) => {
+// Handler to create a new admin
+export const CreateAdminHandler = async (req: Request, res: Response) => {
+  const details = CreateAdminValidator.safeParse(req.body);
+
+  if (!details.success) {
+    return res.status(400).json({ message: "Bad Request" });
+  }
+
+  const { facultyEmail, facultyPassword, adminFirstName, adminLastName, department, adminEmail } = details.data;
+
   try {
-    const validBody = EditAdminValidator.safeParse(req.body);
-    
-    if (!validBody.success) {
-      res.status(400).json({
-        message: "Invalid input data",
+    const newAdmin = await prismaClient.$transaction(async (trx) => {
+      const existingFaculty = await trx.admin.findFirst({
+        where: {
+          email: facultyEmail,
+          password: facultyPassword,
+          role: "Faculty",
+        },
       });
-      throw new CustomError("Invalid input data");
+
+      if (!existingFaculty) {
+        throw new Error("FacultyNotFound");
+      }
+
+      const password = RandomPassword();
+      const doubleHashedPassword = newHash(newHash(password));
+
+      const createdAdmin = await trx.admin.create({
+        data: {
+          firstName: adminFirstName,
+          lastName: adminLastName,
+          department,
+          email: adminEmail,
+          isActive: true,
+          password: doubleHashedPassword,
+        },
+      });
+
+      // Optional: add a mailer later
+      // sendAdminPassword(createdAdmin.firstName, createdAdmin.email, password);
+
+      return createdAdmin;
+    });
+
+    return res.status(201).json({
+      message: "Admin created successfully",
+      admin: newAdmin,
+    });
+  } catch (e) {
+    if (e instanceof Error && e.message === "FacultyNotFound") {
+      return res.status(404).json({ message: "Faculty not found" });
+    }
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// Handler to update admin details
+export const UpdateAdminHandler = async (req: Request, res: Response) => {
+  const result = UpdateAdminValidator.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: "Bad Request",
+      issues: result.error.issues,
+    });
+  }
+
+  const { email, firstName, lastName, department } = result.data;
+
+  try {
+    const existingAdmin = await prismaClient.admin.findUnique({
+      where: { email },
+    });
+
+    if (!existingAdmin) {
+      return res.status(404).json({ message: "Admin not found" });
     }
 
-    return await prismaClient.$transaction(async (tx) => {
-      const adminToEdit = await tx.admin.findFirst({
-        where: {
-          email: req.params.email
-        },
+    if (existingAdmin.role === "Faculty") {
+      return res.status(403).json({
+        message: "Faculty admins are not allowed to update other admins",
       });
+    }
 
-      if (!adminToEdit) {
-        res.status(404).json({
-          message: "Admin not found",
-        });
-        throw new CustomError("Admin not found");
-      }
+    const updatedAdmin = await prismaClient.admin.update({
+      where: { email },
+      data: {
+        firstName,
+        lastName,
+        department,
+      },
+    });
 
-      if (req.user.role === "Student" && req.user.email !== req.params.email) {
-        res.status(403).json({
-          message: "Students can only edit their own details",
-        });
-        throw new CustomError("Unauthorized access");
-      }
-
-      if (req.user.role === "Student") {
-        const updatedAdmin = await tx.admin.update({
-          where: { id: adminToEdit.id }, 
-          data: {
-            firstName: validBody.data.firstName,
-            lastName: validBody.data.lastName,
-            email: validBody.data.email,
-            department: validBody.data.department,
-          },
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true,
-            department: true,
-          },
-        });
-
-        return res.status(200).json({
-          message: "Admin details updated successfully",
-          data: updatedAdmin,
-        });
-      }
-
-      const updatedAdmin = await tx.admin.update({
-        where: { id: adminToEdit.id }, 
-        data: {
-          ...validBody.data,  
-        },
-        select: {
-          firstName: true,
-          lastName: true,
-          email: true,
-          department: true,
-        },
-      });
-
-      return res.status(200).json({
-        message: "Admin details updated successfully",
-        data: updatedAdmin,
-      });
+    return res.status(200).json({
+      message: "Admin updated successfully",
+      firstName: updatedAdmin.firstName,
+      lastName: updatedAdmin.lastName,
+      department: updatedAdmin.department,
     });
   } catch (error) {
-
-    if (error instanceof CustomError) {
-      return;
-    }
-
-    return res.status(500).json({
-      message: "Internal server error. Please try again later.",
-    });
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
