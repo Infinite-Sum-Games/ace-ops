@@ -7,19 +7,20 @@ export const GetAllBlogsHandlerForUser = async (_ : Request, res : Response) => 
     try {
         const blogs = await prismaClient.blogs.findMany({
             select : {
-                id : true,
                 title : true,
                 displayURL : true,
                 blurb : true,
-                content : true,
                 author : true,
                 tags : true,
-                status : true,
                 publishedOn : true
+            },
+            where : {
+                status : "Published",
             }
         });
         return res.status(200).json({
-            blogs
+            message : "All blogs retrived and send successfully.",
+            data : blogs
         });
     }
     catch(e){
@@ -33,14 +34,15 @@ export const GetBlogByIdHandler = async (req : Request, res : Response) => {
     const blogId = z.string().cuid().safeParse(req.params.blogId)
     if(!blogId.success){
         return res.status(400).json({
-            message: "Invalid Blog Id provided"
+            message: "Invalid Blog Id provided."
         });
     }
 
     try{
         const blog = await prismaClient.blogs.findFirst({
             where:{
-                id : blogId.data
+                id : blogId.data,
+                status : "Published"
             },
             select:{
                 id : true,
@@ -49,12 +51,19 @@ export const GetBlogByIdHandler = async (req : Request, res : Response) => {
                 content : true,
                 author : true,
                 tags : true,
-                status : true,
                 publishedOn : true
             }
         })
+
+        if (!blog) {
+            return res.status(404).json({
+              message : "Blog not found."
+            })
+        }
+
         return res.status(200).json({
-            blog
+            message : "Blog retrieved successfully.",
+            data : blog
         });
     }
     catch(e){

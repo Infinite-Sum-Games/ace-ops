@@ -11,7 +11,7 @@
     "db:generate": "drizzle-kit generate:pg",
     "db:clear": "drizzle-kit drop",
     "db:studio": "npx prisma studio",
-    "db: reset": "npx prisma migrate reset && yarn db:seed",
+    "db:reset": "npx prisma migrate reset && yarn db:seed",
     "prepare": "husky"
   },
   "repository": {
@@ -37,7 +37,7 @@
     ]
   },
   "prisma": {
-    "seed": "db/seed.ts"
+    "seed": "tsx src/db/seed.ts"
   },
   "homepage": "https://github.com/IAmRiteshKoushik/ace-ops#readme",
   "dependencies": {

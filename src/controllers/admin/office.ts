@@ -172,7 +172,8 @@ export const GetPastAdminHandler = async (_ : Request, res : Response) => {
       }
     });
     return res.status(200).json({
-      pastAdmins
+      message : "Past Admin Handlers retrieved successfully.",
+      data : pastAdmins
     })
   }
   catch (e) {

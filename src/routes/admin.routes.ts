@@ -7,7 +7,7 @@ import {
   CreateEventHandler,
   EditEventHandler,
 } from "@/controllers/admin/event";
-import { GetAllBlogsHandlerForAdmin, GetBlogByIdHandler, UpdateBlogHandler, DeleteBlogHandler, ChangeStatusOfBlog} from "@/controllers/admin/blogs";
+import { GetAllBlogsHandlerForAdmin, GetBlogByIdHandler, UpdateBlogHandler, DeleteBlogHandler, ChangeStatusOfBlog } from "@/controllers/admin/blogs";
 
 const router = Router();
 
@@ -32,7 +32,7 @@ router.post("/blogs/update/:blogId", validateToken, UpdateBlogHandler);
 router.delete("/blogs/delete/:blogId", validateToken, DeleteBlogHandler);
 router.put("/blogs/UpdateStatus/:blogId", validateToken, ChangeStatusOfBlog);
 
-  
+
 // Campaigns
 // router.get("/campaigns", validateToken, handleGetAllCampaigns);
 // router.get("/campaigns/:campaignId", validateToken, handleGetAllCampaigns);

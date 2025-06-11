@@ -7,7 +7,7 @@ export const GetBlogByIdHandler = async (req : Request, res : Response) => {
     const blogId = z.string().cuid().safeParse(req.params.blogId)
     if(!blogId.success){
         return res.status(400).json({
-            message: "Invalid Blog Id provided"
+            message: "Invalid Blog Id provided."
         });
     }
 
@@ -74,7 +74,7 @@ export const UpdateBlogHandler = async (req : Request, res : Response) => {
     const blogId = z.string().cuid().safeParse(req.params.blogId)
     if(!blogId.success){
         return res.status(400).json({
-            message: "Invalid Blog Id provided"
+            message: "Invalid Blog Id provided."
         });
     }
 
@@ -101,15 +101,14 @@ export const UpdateBlogHandler = async (req : Request, res : Response) => {
                     blurb : validateBlog.data.blurb,
                     content : validateBlog.data.content,
                     author : validateBlog.data.author,
-                    tags : validateBlog.data.tags,
-                    status : validateBlog.data.status,
-                    publishedOn : validateBlog.data.publishedOn
+                    tags : validateBlog.data.tags
                 }
             });
             return updatedBlog;
         });
         return res.status(200).json({
-            blog
+          "message":"Blog Updated Successfully.",
+          data : blog
         });
     }
     catch(e){
@@ -123,7 +122,7 @@ export const DeleteBlogHandler = async (req : Request, res : Response) => {
     const blogId = z.string().cuid().safeParse(req.params.blogId)
     if(!blogId.success){
         return res.status(400).json({
-            message: "Invalid Blog Id provided"
+            message: "Invalid Blog Id provided."
         });
     }
 
@@ -147,7 +146,7 @@ export const DeleteBlogHandler = async (req : Request, res : Response) => {
             })
         })
         return res.status(200).json({
-            message : "Blog deleted successfully"
+            message : "Blog deleted successfully."
         })
     }
     catch(e){
@@ -168,28 +167,43 @@ export const ChangeStatusOfBlog = async (req : Request, res : Response) => {
     const blogId = z.string().cuid().safeParse(req.params.blogId)
     if(!blogId.success){
         return res.status(400).json({
-            message: "Invalid Blog Id provided"
+            message: "Invalid Blog Id provided."
         });
     }
 
     try{
-        const blog = await prismaClient.$transaction(async (tx) => {
-            const changeStatusBlog = await tx.blogs.update({
-                where:{
-                    id : blogId.data
-                },
-                data:{
-                    status : validStatus.data
-                }
-            })
-        });
+        if (validStatus.data == "Published") {
+          const blog = await prismaClient.blogs.update({
+            where : {
+              id : blogId.data
+            },
+            data : {
+              status : validStatus.data,
+              publishedOn : new Date()
+            }
+          })
+        }
+
+        else {
+          const blog = await prismaClient.blogs.update({
+            where : {
+              id : blogId.data
+            },
+            data : {
+              status : validStatus.data,
+              publishedOn : null
+            }
+          })
+          }
+
         return res.status(200).json({
-            message : "Status updated successfully"
+            message : "Status updated successfully."
         });
     }
     catch(e){
         return res.status(500).json({
-            message: "Internal Server Error! Please try again later."
+            message: "Internal Server Error! Please try again later.",
+            error: e
           });
     }
 }

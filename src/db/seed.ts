@@ -1,6 +1,6 @@
 import { PrismaClient, AdminRole, EventEntry, EventMode, Status } from '@prisma/client';
 import { faker } from "@faker-js/faker";
-import fs from "node:fs";
+import * as fs from "node:fs";
 
 const prisma = new PrismaClient();
 const environment = process.env.NODE_ENV;
@@ -60,7 +60,7 @@ async function adminSeed() {
 async function blogSeed() {
 
   const blogs = [];
-  const markdownContent = fs.readFileSync("./blog-sample.md", "utf-8");
+  const markdownContent = fs.readFileSync("./src/db/blog-sample.md", "utf-8");
 
   for (let i = 0; i < 10; i++) {
     blogs.push({
@@ -68,7 +68,7 @@ async function blogSeed() {
       displayURL: faker.internet.url(),
       blurb: faker.lorem.sentence(),
       content: markdownContent,
-      author: faker.person.firstName() + " " + faker.person.lastName,
+      author: faker.person.firstName() + " " + faker.person.lastName(),
       tags: faker.lorem.words(3).split(' '),
       status: faker.helpers.arrayElement([Status.Draft, Status.Published]),
       publishedOn: faker.date.past()
@@ -124,13 +124,13 @@ async function registrationSeed() {
 async function main() {
   console.log('Seed data created successfully');
   if (environment === "development") {
-    userSeed();
-    adminSeed();
-    blogSeed();
-    eventSeed();
-    sponsorSeed();
-    registrationSeed();
-    suggestionSeed();
+    await userSeed();
+    await adminSeed();
+    await blogSeed();
+    await eventSeed();
+    await sponsorSeed();
+    await registrationSeed();
+    await suggestionSeed();
   }
 }
 
