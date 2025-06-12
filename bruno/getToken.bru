@@ -1,0 +1,23 @@
+meta {
+  name: getToken
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{base_url}}/admin/office/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email": "{{email}}",
+    "password" : "{{pwd}}"
+  }
+  
+}
+
+script:post-response {
+  bru.setVar("token",res.body.accessToken);
+}

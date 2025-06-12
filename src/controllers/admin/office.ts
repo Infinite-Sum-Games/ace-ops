@@ -12,6 +12,7 @@ export const AdminLoginHandler = async (req: Request, res: Response) => {
   const validBody = AdminLoginRequest.safeParse(req.body);
 
   if (validBody.success !== true) {
+    console.log(validBody)
     return res.status(400).json({
       message: "Bad Request"
     });
@@ -156,29 +157,29 @@ export const CreateAdminHandler = async (req: Request, res: Response) => {
   }
 };
 
-export const GetPastAdminHandler = async (_ : Request, res : Response) => {
+export const GetPastAdminHandler = async (_: Request, res: Response) => {
   try {
     const pastAdmins = await prismaClient.admin.findMany({
-      where : {
-        isActive : false
+      where: {
+        isActive: false
       },
-      select : {
-        id : true,
-        firstName : true,
-        lastName : true,
-        email : true,
-        department : true,
-        role : true
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        department: true,
+        role: true
       }
     });
     return res.status(200).json({
-      message : "Past Admin Handlers retrieved successfully.",
-      data : pastAdmins
+      message: "Past Admin Handlers retrieved successfully.",
+      data: pastAdmins
     })
   }
   catch (e) {
     return res.status(500).json({
-      message : "Internal Server Error! Please try again later."
+      message: "Internal Server Error! Please try again later."
     });
   }
 }

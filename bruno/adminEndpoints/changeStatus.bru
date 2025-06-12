@@ -1,0 +1,21 @@
+meta {
+  name: changeStatus
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{base_url}}/admin/blogs/UpdateStatus/cmbtha1c3002zporszm10q1sf
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "status" : "Published"
+  }
+}
+
+script:pre-request {
+  req.setHeader("Authorization", "Bearer {{token}}")
+}
