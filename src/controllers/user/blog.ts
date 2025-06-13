@@ -19,7 +19,7 @@ export const GetAllBlogsHandlerForUser = async (_: Request, res: Response) => {
       }
     });
     return res.status(200).json({
-      message: "All blogs retrived and send successfully.",
+      message: "All blogs retrieved and sent successfully.",
       data: blogs
     });
   }
