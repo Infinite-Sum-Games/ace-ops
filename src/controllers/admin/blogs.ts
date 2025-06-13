@@ -106,7 +106,6 @@ export const UpdateBlogHandler = async (req: Request, res: Response) => {
         },
         data: {
           title: validateBlog.data.title,
-          displayURL: validateBlog.data.displayURL,
           blurb: validateBlog.data.blurb,
           content: validateBlog.data.content,
           author: validateBlog.data.author,
