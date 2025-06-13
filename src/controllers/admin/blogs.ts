@@ -193,7 +193,7 @@ export const ChangeStatusOfBlog = async (req: Request, res: Response) => {
         throw err;
       }
 
-      if (validStatus.data == "Published") {
+      if (validStatus.data === "Published") {
         const updatedBlog = await tx.blogs.update({
           where: {
             id: blogId.data
