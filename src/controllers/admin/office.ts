@@ -12,7 +12,9 @@ export const AdminLoginHandler = async (req: Request, res: Response) => {
   const validBody = AdminLoginRequest.safeParse(req.body);
 
   if (validBody.success !== true) {
-    console.log(validBody)
+    if (process.env.NODE_ENV !== "production") {
+      console.log(validBody);
+    }
     return res.status(400).json({
       message: "Bad Request"
     });
