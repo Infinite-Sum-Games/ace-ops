@@ -19,6 +19,7 @@ export const GetBlogByIdHandler = async (req: Request, res: Response) => {
       select: {
         id: true,
         title: true,
+        displayURL: true,
         blurb: true,
         content: true,
         author: true,
@@ -27,8 +28,15 @@ export const GetBlogByIdHandler = async (req: Request, res: Response) => {
         publishedOn: true
       }
     })
+
+    if (!blog) {
+      return res.status(404).json({
+        message: "Blog Not Found."
+      })
+    }
     return res.status(200).json({
-      blog
+      message: "Blog Retrieved and Sent Successfully.",
+      data: blog
     });
   }
   catch (e) {
@@ -44,8 +52,8 @@ export const GetAllBlogsHandlerForAdmin = async (_: Request, res: Response) => {
       select: {
         id: true,
         title: true,
+        displayURL: true,
         blurb: true,
-        content: true,
         author: true,
         tags: true,
         status: true,
@@ -53,7 +61,8 @@ export const GetAllBlogsHandlerForAdmin = async (_: Request, res: Response) => {
       }
     });
     return res.status(200).json({
-      blogs
+      message: "All Blogs Retrieved and Sent Successfully.",
+      data: blogs
     });
   }
   catch (e) {
@@ -78,19 +87,19 @@ export const UpdateBlogHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const blog = await prismaClient.blogs.findFirst({
-    where: {
-      id: blogId.data
-    }
-  })
-  if (!blog) {
-    return res.status(404).json({
-      message: "Blog not found!"
-    })
-  }
-
   try {
     const blog = await prismaClient.$transaction(async (tx) => {
+      const currentBlog = await tx.blogs.findFirst({
+        where: {
+          id: blogId.data
+        }
+      })
+      if (!currentBlog) {
+        const err: any = new Error("Blog Not Found.");
+        err.statusCode = 404;
+        throw err;
+      }
+
       const updatedBlog = await tx.blogs.update({
         where: {
           id: blogId.data
@@ -111,10 +120,10 @@ export const UpdateBlogHandler = async (req: Request, res: Response) => {
       data: blog
     });
   }
-  catch (e) {
-    return res.status(500).json({
-      message: "Internal Server Error! Please try again later."
-    });
+  catch (e: any) {
+    const statusCode = e.statusCode || 500;
+    const message = e.message || "Internal Server Error! Please try again later.";
+    return res.status(statusCode).json({ message });
   }
 }
 
@@ -126,19 +135,19 @@ export const DeleteBlogHandler = async (req: Request, res: Response) => {
     });
   }
 
-  const blog = await prismaClient.blogs.findFirst({
-    where: {
-      id: blogId.data
-    }
-  })
-  if (!blog) {
-    return res.status(404).json({
-      message: "Blog not found!"
-    })
-  }
-
   try {
     const blog = await prismaClient.$transaction(async (tx) => {
+      const currentBlog = await tx.blogs.findFirst({
+        where: {
+          id: blogId.data
+        }
+      })
+      if (!currentBlog) {
+        const err: any = new Error("Blog Not Found.");
+        err.statusCode = 404;
+        throw err;
+      }
+
       const deletedBlog = await tx.blogs.delete({
         where: {
           id: blogId.data
@@ -149,15 +158,14 @@ export const DeleteBlogHandler = async (req: Request, res: Response) => {
       message: "Blog deleted successfully."
     })
   }
-  catch (e) {
-    return res.status(500).json({
-      message: "Internal Server Error! Please try again later."
-    });
+  catch (e: any) {
+    const statusCode = e.statusCode || 500;
+    const message = e.message || "Internal Server Error! Please try again later.";
+    return res.status(statusCode).json({ message });
   }
 }
 
 export const ChangeStatusOfBlog = async (req: Request, res: Response) => {
-  console.log("Requested blogId:", req.params.blogId);
   const validStatus = z.enum(["Draft", "Published"]).safeParse(req.body.status);
   if (!validStatus.success) {
     return res.status(400).json({
@@ -174,6 +182,17 @@ export const ChangeStatusOfBlog = async (req: Request, res: Response) => {
 
   try {
     const blog = await prismaClient.$transaction(async (tx) => {
+      const currentBlog = await tx.blogs.findFirst({
+        where: {
+          id: blogId.data
+        }
+      })
+      if (!currentBlog) {
+        const err: any = new Error("Blog Not Found");
+        err.statusCode = 404;
+        throw err;
+      }
+
       if (validStatus.data == "Published") {
         const updatedBlog = await tx.blogs.update({
           where: {
@@ -203,9 +222,9 @@ export const ChangeStatusOfBlog = async (req: Request, res: Response) => {
       });
     })
   }
-  catch (e) {
-    return res.status(500).json({
-      message: "Internal Server Error! Please try again later."
-    });
+  catch (e: any) {
+    const statusCode = e.statusCode || 500;
+    const message = e.message || "Internal Server Error! Please try again later.";
+    return res.status(statusCode).json({ message });
   }
 }

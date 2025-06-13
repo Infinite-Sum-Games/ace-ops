@@ -1,0 +1,15 @@
+meta {
+  name: getAllBlogs
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{base_url}}/admin/blogs
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  req.setHeader("Authorization", "Bearer {{token}}")
+}
