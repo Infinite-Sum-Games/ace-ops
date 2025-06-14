@@ -1,7 +1,7 @@
 import { prismaClient } from "@/main"
 import { Request, Response } from "express";
 import { z } from "zod";
-import { UpdateBlogValidator } from "@/types/blog";
+import { UpdateBlogValidator, CreateBlogValidator } from "@/types/blog";
 
 export const GetBlogByIdHandler = async (req: Request, res: Response) => {
   const blogId = z.string().cuid().safeParse(req.params.blogId)
@@ -69,6 +69,40 @@ export const GetAllBlogsHandlerForAdmin = async (_: Request, res: Response) => {
     return res.status(500).json({
       message: "Internal Server Error! Please try again later."
     });
+  }
+}
+
+export const CreateBlogHandler = async (req: Request, res: Response) => {
+  const validBlog = CreateBlogValidator.safeParse(req.body);
+  if (!validBlog.success) {
+    return res.status(400).json({
+      message: "Invalid Blog data provided!"
+    });
+  }
+
+  try {
+    const blog = await prismaClient.$transaction(async (tx) => {
+      return await tx.blogs.create({
+        data: {
+          title: validBlog.data.title,
+          blurb: validBlog.data.blurb,
+          content: validBlog.data.content,
+          author: validBlog.data.author,
+          tags: validBlog.data.tags,
+          status: validBlog.data.status,
+          publishedOn: validBlog.data.status === "Published" ? new Date() : null,
+        }
+      });
+    })
+    return res.status(200).json({
+      message: "Blog Created Successfully.",
+      data: blog
+    })
+  }
+  catch (e: any) {
+    const statusCode = e.statusCode || 500;
+    const message = e.message || "Internal Server Error! Please try again later.";
+    return res.status(statusCode).json({ message });
   }
 }
 
@@ -215,11 +249,12 @@ export const ChangeStatusOfBlog = async (req: Request, res: Response) => {
           }
         })
       }
-
-      return res.status(200).json({
-        message: "Status updated successfully."
-      });
     })
+
+    return res.status(200).json({
+      message: "Blog Status updated successfully."
+    });
+
   }
   catch (e: any) {
     const statusCode = e.statusCode || 500;
