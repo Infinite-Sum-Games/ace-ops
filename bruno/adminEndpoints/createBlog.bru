@@ -1,0 +1,27 @@
+meta {
+  name: createBlog
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{base_url}}/admin/blogs/new
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "Understanding Prisma Transactions",
+    "blurb": "A quick guide to using transactions in Prisma.",
+    "content": "Transactions in Prisma help ensure data consistency",
+    "author": "John Doe",
+    "tags": ["prisma", "typescript", "backend"],
+    "status": "Published"
+  }
+  
+}
+
+script:pre-request {
+  req.setHeader("Authorization", "Bearer {{token}}")
+}

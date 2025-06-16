@@ -1,5 +1,6 @@
 import { V4 } from "paseto";
 import fs from "fs";
+import path from "path";
 import { NextFunction, Request, Response } from "express";
 
 // TODO: Change during deployment
@@ -21,7 +22,8 @@ const secretKey = "ASzgds9IWn6$wuKu#Nr0^Vvt9JqA4lqzNHu2F1mPPlJuhZivYXreNG@fPC6" 
 
 const createToken = async (email: string) => {
   const data = { email, secretKey };
-  const privateKey = fs.readFileSync("../../encryption/private_key.pem");
+  const privateKeyPath = path.resolve(__dirname, "../../encryption/private_key.pem");
+  const privateKey = fs.readFileSync(privateKeyPath, "utf-8");
   const token = await V4.sign(data, privateKey, { expiresIn: '1440m' });
 
   return token;
@@ -48,7 +50,8 @@ const validateToken = async (req: Request, res: Response, next: NextFunction) =>
       return;
     }
 
-    const publicKey = fs.readFileSync("../../encryption/public_key.pem");
+    const publicKeyPath = path.resolve(__dirname, "../../encryption/public_key.pem");
+    const publicKey = fs.readFileSync(publicKeyPath, "utf-8");
 
     const payLoad = await V4.verify(token, publicKey);
     if (payLoad["secretKey"] === secretKey) {

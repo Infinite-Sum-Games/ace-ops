@@ -1,0 +1,15 @@
+meta {
+  name: getBlogById
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{base_url}}/admin/blogs/cmbtha1c3002zporszm10q1s
+  body: none
+  auth: inherit
+}
+
+script:pre-request {
+  req.setHeader("Authorization", "Bearer {{token}}")
+}

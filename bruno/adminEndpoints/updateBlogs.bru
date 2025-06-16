@@ -1,0 +1,27 @@
+meta {
+  name: updateBlogs
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{base_url}}/admin/blogs/update/cmbtha1c3002zporszm10q1s
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "title": "My First Blog",
+    "displayURL": "https://example.com/blog",
+    "blurb": "This is a short summary",
+    "content": "This is the full blog content",
+    "author": "John Doe",
+    "tags": ["blog", "writing", "example"]
+  }
+  
+}
+
+script:pre-request {
+  req.setHeader("Authorization", "Bearer {{token}}")
+}
